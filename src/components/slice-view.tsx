@@ -15,12 +15,20 @@ type SliceViewProps = {
 export default function SliceView(props: SliceViewProps) {
   const colors = Colors.light
 
+  function getTaskDue(task: any) {
+    if (task.time !== null) {
+      return task.date + ' • ' + task.time
+    }
+
+    return task.date
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SafeAreaView style={styles.safeArea}>
         <Pressable onPress={props.onBack}>
           <Text style={[styles.back, { color: colors.orange }]}>
-            Back
+                { "< " }Back
           </Text>
         </Pressable>
 
@@ -41,7 +49,7 @@ export default function SliceView(props: SliceViewProps) {
             <TaskCard
               key={task.id}
               title={task.title}
-              due={task.due}
+              due={getTaskDue(task)}
             />
           )
         })}

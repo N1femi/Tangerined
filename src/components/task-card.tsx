@@ -5,6 +5,8 @@ import { Colors, Spacing } from '@/constants/theme'
 type TaskCardProps = {
   title: string
   due: string
+  sliceName?: string
+  sliceColor?: string
 }
 
 export default function TaskCard(props: TaskCardProps) {
@@ -19,6 +21,21 @@ export default function TaskCard(props: TaskCardProps) {
       <Text style={[styles.due, { color: colors.textSecondary }]}>
         {props.due}
       </Text>
+
+      {props.sliceName && props.sliceColor ? (
+        <View style={styles.sliceInfo}>
+          <View
+            style={[
+              styles.sliceCircle,
+              { backgroundColor: props.sliceColor },
+            ]}
+          />
+
+          <Text style={[styles.sliceName, { color: colors.textSecondary }]}>
+            {props.sliceName}
+          </Text>
+        </View>
+      ) : null}
     </View>
   )
 }
@@ -38,5 +55,22 @@ const styles = StyleSheet.create({
   due: {
     fontSize: 14,
     marginTop: Spacing.one,
+  },
+
+  sliceInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: Spacing.two,
+  },
+
+  sliceCircle: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: Spacing.two,
+  },
+
+  sliceName: {
+    fontSize: 13,
   },
 })
