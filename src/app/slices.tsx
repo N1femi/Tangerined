@@ -14,7 +14,7 @@ export default function SlicesScreen() {
         </Text>
 
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Everything in your life, sliced up. Into bite-sized pieces.
+          Everything in your life, sliced up into bite size pieces.
         </Text>
       </SafeAreaView>
     </View>
