@@ -1,32 +1,75 @@
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { useColorScheme } from 'react-native';
+import { NativeTabs } from 'expo-router/unstable-native-tabs'
 
-import { Colors } from '@/constants/theme';
+import { Colors } from '@/constants/theme'
 
 export default function AppTabs() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+  const colors = Colors.light
 
   return (
     <NativeTabs
-      backgroundColor={colors.background}
-      indicatorColor={colors.backgroundElement}
-      labelStyle={{ selected: { color: colors.text } }}>
+      backgroundColor={colors.cream}
+      tintColor={colors.orange}
+      indicatorColor={colors.orangeLight}
+    >
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
+          sf={{
+            default: 'house',
+            selected: 'house.fill',
+          }}
+          md={{
+            default: 'home',
+            selected: 'home',
+          }}
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="explore">
-        <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="slices">
+        <NativeTabs.Trigger.Label>Slices</NativeTabs.Trigger.Label>
+
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
+          sf={{
+            default: 'circle.grid.2x2',
+            selected: 'circle.grid.2x2.fill',
+          }}
+          md={{
+            default: 'grid_view',
+            selected: 'grid_view',
+          }}
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="add">
+        <NativeTabs.Trigger.Label>Add</NativeTabs.Trigger.Label>
+
+        <NativeTabs.Trigger.Icon
+          sf={{
+            default: 'plus.circle',
+            selected: 'plus.circle.fill',
+          }}
+          md={{
+            default: 'add_circle',
+            selected: 'add_circle',
+          }}
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="profile">
+        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
+
+        <NativeTabs.Trigger.Icon
+          sf={{
+            default: 'person',
+            selected: 'person.fill',
+          }}
+          md={{
+            default: 'person',
+            selected: 'person',
+          }}
         />
       </NativeTabs.Trigger>
     </NativeTabs>
-  );
+  )
 }
