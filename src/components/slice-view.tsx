@@ -9,7 +9,7 @@ type SliceViewProps = {
   emoji: string
   description: string
   tasks: any[]
-  onBack: Function
+  onBack: () => void
 }
 
 export default function SliceView(props: SliceViewProps) {
