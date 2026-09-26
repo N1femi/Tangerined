@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { Colors, Spacing } from '@/constants/theme'
@@ -37,6 +37,27 @@ export default function HomeScreen() {
             Nothing here yet.
           </Text>
         </View>
+
+        <Pressable
+          style={[
+            styles.slice,
+            { backgroundColor: colors.backgroundElement },
+          ]}
+        >
+          <Text style={[styles.sliceLabel, { color: colors.orange }]}>
+            TODAY'S TASKS
+          </Text>
+
+          <Text style={[styles.sliceTitle, { color: colors.text }]}>
+            Get them done
+          </Text>
+
+          <Text style={[styles.sliceText, { color: colors.textSecondary }]}>
+            Nothing here yet.
+          </Text>
+        </Pressable>
+
+
       </SafeAreaView>
     </View>
   )
