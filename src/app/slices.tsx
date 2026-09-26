@@ -1,26 +1,43 @@
-import { router } from 'expo-router'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { useState } from 'react'
+import { StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+import SliceCard from '@/components/slice-card'
+import SliceView from '@/components/slice-view'
 import { Colors, Spacing } from '@/constants/theme'
+import { slices } from '@/data/slices'
 
 export default function SlicesScreen() {
   const colors = Colors.light
 
-  function openSchool() {
-    router.push("./school")
+  const [selectedSliceId, setSelectedSliceId] = useState('')
+
+  function openSlice(id: string) {
+    setSelectedSliceId(id)
   }
 
-  function openProjects() {
-    router.push("./projects")
+  function closeSlice() {
+    setSelectedSliceId('')
   }
 
-  function openPersonal() {
-    router.push("./personal")
+  let selectedSlice = null
+
+  for (let i = 0; i < slices.length; i++) {
+    if (slices[i].id === selectedSliceId) {
+      selectedSlice = slices[i]
+    }
   }
 
-  function goBack() {
-    router.back()
+  if (selectedSlice !== null) {
+    return (
+      <SliceView
+        name={selectedSlice.name}
+        emoji={selectedSlice.emoji}
+        description={selectedSlice.description}
+        tasks={selectedSlice.tasks}
+        onBack={closeSlice}
+      />
+    )
   }
 
   return (
@@ -35,50 +52,18 @@ export default function SlicesScreen() {
         </Text>
 
         <View style={styles.slicesContainer}>
-          <Pressable
-            style={[styles.sliceCard, { backgroundColor: colors.cream }]}
-            onPress={openSchool}
-          >
-            <Text style={styles.emoji}>🎓</Text>
-
-            <Text style={[styles.sliceTitle, { color: colors.text }]}>
-              School
-            </Text>
-
-            <Text style={[styles.sliceInfo, { color: colors.textSecondary }]}>
-              4 things remaining
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={[styles.sliceCard, { backgroundColor: colors.cream }]}
-            onPress={openProjects}
-          >
-            <Text style={styles.emoji}>💻</Text>
-
-            <Text style={[styles.sliceTitle, { color: colors.text }]}>
-              Projects
-            </Text>
-
-            <Text style={[styles.sliceInfo, { color: colors.textSecondary }]}>
-              3 things remaining
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={[styles.sliceCard, { backgroundColor: colors.cream }]}
-            onPress={openPersonal}
-          >
-            <Text style={styles.emoji}>🏠</Text>
-
-            <Text style={[styles.sliceTitle, { color: colors.text }]}>
-              Personal
-            </Text>
-
-            <Text style={[styles.sliceInfo, { color: colors.textSecondary }]}>
-              2 things remaining
-            </Text>
-          </Pressable>
+          {slices.map(function(slice) {
+            return (
+              <SliceCard
+                key={slice.id}
+                id={slice.id}
+                name={slice.name}
+                emoji={slice.emoji}
+                remaining={slice.tasks.length}
+                onPress={openSlice}
+              />
+            )
+          })}
         </View>
       </SafeAreaView>
     </View>
@@ -109,25 +94,4 @@ const styles = StyleSheet.create({
   slicesContainer: {
     marginTop: Spacing.five,
   },
-
-  sliceCard: {
-    padding: Spacing.four,
-    borderRadius: 24,
-    marginBottom: Spacing.three,
-  },
-
-  emoji: {
-    fontSize: 28,
-    marginBottom: Spacing.two,
-  },
-
-  sliceTitle: {
-    fontSize: 21,
-    fontWeight: '600',
-  },
-
-  sliceInfo: {
-    fontSize: 14,
-    marginTop: Spacing.one,
-  }
 })
