@@ -1,0 +1,14 @@
+Frontend
+Expo + React Native + TypeScript
+
+Backend
+Python + FastAPI
+
+Database connection
+psycopg
+
+Database
+TigerData / PostgreSQL
+
+Queries
+Raw SQL written by you
