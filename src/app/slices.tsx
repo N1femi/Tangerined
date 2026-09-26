@@ -1,14 +1,10 @@
 import { router } from 'expo-router'
-import { useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { Colors, Spacing } from '@/constants/theme'
 
 export default function SlicesScreen() {
-  const [selectedSlice, setSelectedSlice] = useState("")
-
-
   const colors = Colors.light
 
   function openSchool() {
@@ -25,28 +21,6 @@ export default function SlicesScreen() {
 
   function goBack() {
     router.back()
-  }
-
-  if (selectedSlice === 'school') {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <SafeAreaView style={styles.safeArea}>
-          <Pressable onPress={goBack}>
-            <Text style={{ color: colors.orange }}>
-              Back
-            </Text>
-          </Pressable>
-
-          <Text style={[styles.title, { color: colors.text }]}>
-            School
-          </Text>
-
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            4 things remaining
-          </Text>
-        </SafeAreaView>
-      </View>
-    )
   }
 
   return (
