@@ -6,6 +6,7 @@ import SliceCard from '@/components/slice-card'
 import SliceView from '@/components/slice-view'
 import { Colors, Spacing } from '@/constants/theme'
 import { slices } from '@/data/slices'
+import { tasks } from '@/data/tasks'
 
 export default function SlicesScreen() {
   const colors = Colors.light
@@ -20,11 +21,36 @@ export default function SlicesScreen() {
     setSelectedSliceId('')
   }
 
+  function countRemainingTasks(sliceId: string) {
+    let remaining = 0
+
+    for (let i = 0; i < tasks.length; i++) {
+      if (
+        tasks[i].sliceId === sliceId &&
+        tasks[i].completed === false
+      ) {
+        remaining++
+      }
+    }
+
+    return remaining
+  }
+
   let selectedSlice = null
 
   for (let i = 0; i < slices.length; i++) {
     if (slices[i].id === selectedSliceId) {
       selectedSlice = slices[i]
+    }
+  }
+
+  let selectedTasks = []
+
+  if (selectedSlice !== null) {
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].sliceId === selectedSlice.id) {
+        selectedTasks.push(tasks[i])
+      }
     }
   }
 
@@ -34,7 +60,7 @@ export default function SlicesScreen() {
         name={selectedSlice.name}
         emoji={selectedSlice.emoji}
         description={selectedSlice.description}
-        tasks={selectedSlice.tasks}
+        tasks={selectedTasks}
         onBack={closeSlice}
       />
     )
@@ -59,7 +85,7 @@ export default function SlicesScreen() {
                 id={slice.id}
                 name={slice.name}
                 emoji={slice.emoji}
-                remaining={slice.tasks.length}
+                remaining={countRemainingTasks(slice.id)}
                 onPress={openSlice}
               />
             )

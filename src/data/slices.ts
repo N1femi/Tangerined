@@ -8,20 +8,6 @@ export const slices = [
     backgroundColor: '#FFF0D8',
 
     description: 'Your school tasks and reminders.',
-
-    tasks: [
-      {
-        id: 'math-homework',
-        title: 'Finish Math Homework',
-        due: 'Tonight',
-      },
-
-      {
-        id: 'linear-algebra',
-        title: 'Study Linear Algebra',
-        due: 'Monday',
-      },
-    ],
   },
 
   {
@@ -33,14 +19,6 @@ export const slices = [
     backgroundColor: '#E8F1E7',
 
     description: 'Things you are currently building.',
-
-    tasks: [
-      {
-        id: 'tangerined',
-        title: 'Work on Tangerined',
-        due: 'Tonight',
-      },
-    ],
   },
 
   {
@@ -52,7 +30,5 @@ export const slices = [
     backgroundColor: '#F5E4E7',
 
     description: 'Your personal tasks and reminders.',
-
-    tasks: [],
   },
 ]

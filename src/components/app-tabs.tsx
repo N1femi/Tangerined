@@ -42,7 +42,7 @@ export default function AppTabs() {
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="add">
-        <NativeTabs.Trigger.Label>Add</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label>AI</NativeTabs.Trigger.Label>
 
         <NativeTabs.Trigger.Icon
           sf={{
