@@ -1,98 +1,91 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { Colors, Spacing } from '@/constants/theme'
 
 export default function HomeScreen() {
+  const colors = Colors.light
+
   return (
-    <ThemedView style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+        <View style={styles.header}>
+          <Text style={[styles.greeting, { color: colors.textSecondary }]}>
+            Good afternoon
+          </Text>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+          <Text style={[styles.title, { color: colors.text }]}>
+            Tangerined
+          </Text>
+        </View>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+        <View
+          style={[
+            styles.slice,
+            { backgroundColor: colors.backgroundElement },
+          ]}
+        >
+          <Text style={[styles.sliceLabel, { color: colors.orange }]}>
+            UPCOMING
+          </Text>
 
-        {Platform.OS === 'web' && <WebBadge />}
+          <Text style={[styles.sliceTitle, { color: colors.text }]}>
+            Your day at a glance
+          </Text>
+
+          <Text style={[styles.sliceText, { color: colors.textSecondary }]}>
+            Nothing here yet.
+          </Text>
+        </View>
       </SafeAreaView>
-    </ThemedView>
-  );
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
   },
+
   safeArea: {
     flex: 1,
     paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+    paddingTop: Spacing.three,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+
+  header: {
+    marginBottom: Spacing.five,
   },
+
+  greeting: {
+    fontSize: 16,
+    marginBottom: Spacing.one,
+  },
+
   title: {
-    textAlign: 'center',
+    fontSize: 34,
+    fontWeight: '700',
   },
-  code: {
-    textTransform: 'uppercase',
+
+  slice: {
+    padding: Spacing.four,
+    borderRadius: 28,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+
+  sliceLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 1,
+    marginBottom: Spacing.two,
   },
-});
+
+  sliceTitle: {
+    fontSize: 21,
+    fontWeight: '600',
+    marginBottom: Spacing.two,
+  },
+
+  sliceText: {
+    fontSize: 15,
+  },
+})
