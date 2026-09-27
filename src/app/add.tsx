@@ -1,60 +1,67 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
-  ActivityIndicator,
-  Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { Colors, Spacing } from '@/constants/theme'
-import { useTasks } from '@/context/task-context'
-import { createTaskFromText } from '@/lib/api'
-
 import LiveSpeech from '@/components/live-speech'
 import DraftTaskCard from '@/components/draft-task-card'
+import { Colors, Spacing } from '@/constants/theme'
+import {
+  TaskDraft,
+  understandTaskText,
+} from '@/lib/api'
 
 
 export default function AddScreen() {
   const colors = Colors.light
 
-  const { addTask } = useTasks()
-
-  const [thought, setThought] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
   const [listening, setListening] = useState(false)
   const [liveTranscript, setLiveTranscript] = useState('')
+  const [draftTask, setDraftTask] = useState<TaskDraft | null>(null)
+  const [understanding, setUnderstanding] = useState(false)
 
-  async function submitThought() {
-    if (thought.trim() === '') {
+  const requestNumber = useRef(0)
+
+
+  useEffect(function() {
+    const text = liveTranscript.trim()
+
+    if (text === '') {
+      setDraftTask(null)
+      setUnderstanding(false)
       return
     }
 
-    if (loading) {
-      return
+    requestNumber.current = requestNumber.current + 1
+
+    const thisRequest = requestNumber.current
+
+    setUnderstanding(true)
+
+    const timer = setTimeout(async function() {
+      try {
+        const task = await understandTaskText(text)
+
+        if (thisRequest === requestNumber.current) {
+          setDraftTask(task)
+        }
+      } catch (error) {
+        console.log('Understanding error:', error)
+      } finally {
+        if (thisRequest === requestNumber.current) {
+          setUnderstanding(false)
+        }
+      }
+    }, 700)
+
+    return function() {
+      clearTimeout(timer)
     }
+  }, [liveTranscript])
 
-    setLoading(true)
-    setMessage('')
-
-    try {
-      const task = await createTaskFromText(thought.trim())
-
-      addTask(task)
-
-      setThought('')
-      setMessage('Created: ' + task.title)
-    } catch (error) {
-      console.log(error)
-
-      setMessage('Could not create task. Check the backend terminal.')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -64,7 +71,7 @@ export default function AddScreen() {
         </Text>
 
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Tell Tangerined what you need to remember.
+          Speak naturally. Change anything while you talk.
         </Text>
 
         <LiveSpeech
@@ -76,44 +83,9 @@ export default function AddScreen() {
 
         <DraftTaskCard
           visible={liveTranscript !== ''}
+          understanding={understanding}
+          task={draftTask}
         />
-
-        <TextInput
-          value={thought}
-          onChangeText={setThought}
-          placeholder="I need to study calculus Tuesday at 7..."
-          placeholderTextColor={colors.textSecondary}
-          multiline={true}
-          style={[
-            styles.input,
-            {
-              backgroundColor: colors.backgroundElement,
-              color: colors.text,
-            },
-          ]}
-        />
-
-        <Pressable
-          onPress={submitThought}
-          style={[
-            styles.button,
-            { backgroundColor: colors.orange },
-          ]}
-        >
-          {loading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.buttonText}>
-              Tangerine it
-            </Text>
-          )}
-        </Pressable>
-
-        {message !== '' && (
-          <Text style={[styles.message, { color: colors.textSecondary }]}>
-            {message}
-          </Text>
-        )}
       </SafeAreaView>
     </View>
   )
@@ -139,33 +111,5 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     marginTop: Spacing.two,
-  },
-
-  input: {
-    minHeight: 150,
-    marginTop: Spacing.five,
-    borderRadius: 20,
-    padding: Spacing.three,
-    fontSize: 17,
-    textAlignVertical: 'top',
-  },
-
-  button: {
-    height: 52,
-    marginTop: Spacing.three,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  buttonText: {
-    color: 'white',
-    fontSize: 17,
-    fontWeight: '600',
-  },
-
-  message: {
-    marginTop: Spacing.three,
-    fontSize: 15,
   },
 })

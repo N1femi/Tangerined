@@ -1,119 +1,79 @@
-import { useEffect, useRef } from 'react'
-import {
-  Animated,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 
 import { Colors, Spacing } from '@/constants/theme'
+import { TaskDraft } from '@/lib/api'
 
 
 type DraftTaskCardProps = {
   visible: boolean
+  understanding: boolean
+  task: TaskDraft | null
 }
 
 
 export default function DraftTaskCard(props: DraftTaskCardProps) {
   const colors = Colors.light
 
-  const cardOpacity = useRef(new Animated.Value(0)).current
-  const cardY = useRef(new Animated.Value(10)).current
-  const pulseOpacity = useRef(new Animated.Value(0.35)).current
-
-
-  useEffect(function() {
-    if (props.visible) {
-      Animated.parallel([
-        Animated.timing(cardOpacity, {
-          toValue: 1,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-
-        Animated.timing(cardY, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-      ]).start()
-    }
-  }, [props.visible])
-
-
-  useEffect(function() {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseOpacity, {
-          toValue: 1,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-
-        Animated.timing(pulseOpacity, {
-          toValue: 0.35,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-      ])
-    )
-
-    animation.start()
-
-    return function() {
-      animation.stop()
-    }
-  }, [])
-
-
   if (!props.visible) {
     return null
   }
 
 
+  let title = 'Understanding task...'
+  let slice = 'Finding slice...'
+  let date = 'Finding date...'
+  let time = 'Finding time...'
+
+  if (props.task !== null) {
+    title = props.task.title
+    slice = props.task.sliceId
+    date = props.task.date
+
+    if (props.task.time !== '') {
+      time = props.task.time
+    } else {
+      time = 'No time'
+    }
+  }
+
+
   return (
-    <Animated.View
+    <View
       style={[
         styles.card,
         {
           backgroundColor: colors.backgroundElement,
-          opacity: cardOpacity,
-          transform: [
-            {
-              translateY: cardY,
-            },
-          ],
         },
       ]}
     >
-      <Animated.Text
-        style={[
-          styles.title,
-          {
-            color: colors.text,
-            opacity: pulseOpacity,
-          },
-        ]}
-      >
-        Understanding task...
-      </Animated.Text>
+      <Text style={[styles.title, { color: colors.text }]}>
+        {title}
+      </Text>
+
+      {props.understanding && (
+        <Text style={[styles.status, { color: colors.orange }]}>
+          Understanding...
+        </Text>
+      )}
+
+      <View style={styles.row}>
+        <Text style={[styles.label, { color: colors.textSecondary }]}>
+          Slice
+        </Text>
+
+        <Text style={[styles.value, { color: colors.text }]}>
+          {slice}
+        </Text>
+      </View>
 
       <View style={styles.row}>
         <Text style={[styles.label, { color: colors.textSecondary }]}>
           Date
         </Text>
 
-        <Animated.Text
-          style={[
-            styles.value,
-            {
-              color: colors.text,
-              opacity: pulseOpacity,
-            },
-          ]}
-        >
-          Finding date...
-        </Animated.Text>
+        <Text style={[styles.value, { color: colors.text }]}>
+          {date}
+        </Text>
       </View>
 
       <View style={styles.row}>
@@ -121,19 +81,11 @@ export default function DraftTaskCard(props: DraftTaskCardProps) {
           Time
         </Text>
 
-        <Animated.Text
-          style={[
-            styles.value,
-            {
-              color: colors.text,
-              opacity: pulseOpacity,
-            },
-          ]}
-        >
-          Finding time...
-        </Animated.Text>
+        <Text style={[styles.value, { color: colors.text }]}>
+          {time}
+        </Text>
       </View>
-    </Animated.View>
+    </View>
   )
 }
 
@@ -148,7 +100,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    marginBottom: Spacing.three,
+  },
+
+  status: {
+    fontSize: 13,
+    marginTop: Spacing.one,
+    marginBottom: Spacing.two,
   },
 
   row: {
