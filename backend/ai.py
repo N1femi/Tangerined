@@ -103,7 +103,7 @@ User said:
         cursor.execute(
             """
             SELECT AI_COMPLETE(
-                model => 'claude-sonnet-5',
+                model => 'claude-haiku-4-5',
                 prompt => %s,
                 response_format => TYPE OBJECT(
                     tasks ARRAY(

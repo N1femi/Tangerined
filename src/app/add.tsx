@@ -24,9 +24,10 @@ export default function AddScreen() {
   const [understanding, setUnderstanding] = useState(false)
 
   const latestTranscript = useRef('')
-  const lastSentTranscript = useRef('')
+  const lastSuccessfulTranscript = useRef('')
   const requestInProgress = useRef(false)
   const listeningRef = useRef(false)
+  const finalRequestWaiting = useRef(false)
 
 
   useEffect(function() {
@@ -34,7 +35,7 @@ export default function AddScreen() {
 
     if (liveTranscript.trim() === '') {
       setDraftTasks([])
-      lastSentTranscript.current = ''
+      lastSuccessfulTranscript.current = ''
     }
   }, [liveTranscript])
 
@@ -51,36 +52,43 @@ export default function AddScreen() {
       return
     }
 
-    if (text === lastSentTranscript.current) {
+    if (text === lastSuccessfulTranscript.current) {
       return
     }
 
     if (requestInProgress.current) {
+      if (listeningRef.current === false) {
+        finalRequestWaiting.current = true
+      }
+
       return
     }
 
-    lastSentTranscript.current = text
     requestInProgress.current = true
-
     setUnderstanding(true)
 
     try {
       const tasks = await understandTasksText(text)
 
+      console.log('MULTI TASKS:', tasks)
+
       setDraftTasks(tasks)
+
+      lastSuccessfulTranscript.current = text
     } catch (error) {
       console.log('Understanding error:', error)
     } finally {
       requestInProgress.current = false
       setUnderstanding(false)
 
-      const newestText = latestTranscript.current.trim()
+      if (finalRequestWaiting.current) {
+        finalRequestWaiting.current = false
 
-      if (
-        listeningRef.current === false &&
-        newestText !== lastSentTranscript.current
-      ) {
-        updateDraftFromSpeech()
+        const newestText = latestTranscript.current.trim()
+
+        if (newestText !== lastSuccessfulTranscript.current) {
+          updateDraftFromSpeech()
+        }
       }
     }
   }
@@ -125,13 +133,15 @@ export default function AddScreen() {
           onTranscriptChange={setLiveTranscript}
         />
 
-        {liveTranscript !== '' && draftTasks.length === 0 && (
-          <DraftTaskCard
-            visible={true}
-            understanding={understanding}
-            task={null}
-          />
-        )}
+        {liveTranscript !== '' &&
+          draftTasks.length === 0 &&
+          (listening || understanding) && (
+            <DraftTaskCard
+              visible={true}
+              understanding={understanding}
+              task={null}
+            />
+          )}
 
         {draftTasks.map(function(task, index) {
           return (
