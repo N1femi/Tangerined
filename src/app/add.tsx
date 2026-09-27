@@ -23,44 +23,88 @@ export default function AddScreen() {
   const [draftTask, setDraftTask] = useState<TaskDraft | null>(null)
   const [understanding, setUnderstanding] = useState(false)
 
-  const requestNumber = useRef(0)
+  const latestTranscript = useRef('')
+  const lastSentTranscript = useRef('')
+  const requestInProgress = useRef(false)
+  const listeningRef = useRef(false)
 
 
   useEffect(function() {
-    const text = liveTranscript.trim()
+    latestTranscript.current = liveTranscript
+
+    if (liveTranscript.trim() === '') {
+      setDraftTask(null)
+      lastSentTranscript.current = ''
+    }
+  }, [liveTranscript])
+
+
+  useEffect(function() {
+    listeningRef.current = listening
+  }, [listening])
+
+
+  async function updateDraftFromSpeech() {
+    const text = latestTranscript.current.trim()
 
     if (text === '') {
-      setDraftTask(null)
-      setUnderstanding(false)
       return
     }
 
-    requestNumber.current = requestNumber.current + 1
+    if (text === lastSentTranscript.current) {
+      return
+    }
 
-    const thisRequest = requestNumber.current
+    if (requestInProgress.current) {
+      return
+    }
+
+    lastSentTranscript.current = text
+    requestInProgress.current = true
 
     setUnderstanding(true)
 
-    const timer = setTimeout(async function() {
-      try {
-        const task = await understandTaskText(text)
+    try {
+      const task = await understandTaskText(text)
 
-        if (thisRequest === requestNumber.current) {
-          setDraftTask(task)
-        }
-      } catch (error) {
-        console.log('Understanding error:', error)
-      } finally {
-        if (thisRequest === requestNumber.current) {
-          setUnderstanding(false)
-        }
+      setDraftTask(task)
+    } catch (error) {
+      console.log('Understanding error:', error)
+    } finally {
+      requestInProgress.current = false
+      setUnderstanding(false)
+
+      const newestText = latestTranscript.current.trim()
+
+      if (
+        listeningRef.current === false &&
+        newestText !== lastSentTranscript.current
+      ) {
+        updateDraftFromSpeech()
       }
-    }, 700)
+    }
+  }
+
+
+  useEffect(function() {
+    if (!listening) {
+      updateDraftFromSpeech()
+      return
+    }
+
+    const firstUpdate = setTimeout(function() {
+      updateDraftFromSpeech()
+    }, 1200)
+
+    const updateInterval = setInterval(function() {
+      updateDraftFromSpeech()
+    }, 2200)
 
     return function() {
-      clearTimeout(timer)
+      clearTimeout(firstUpdate)
+      clearInterval(updateInterval)
     }
-  }, [liveTranscript])
+  }, [listening])
 
 
   return (

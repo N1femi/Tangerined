@@ -1,4 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native'
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  LinearTransition,
+} from 'react-native-reanimated'
 
 import { Colors, Spacing } from '@/constants/theme'
 import { TaskDraft } from '@/lib/api'
@@ -37,8 +42,19 @@ export default function DraftTaskCard(props: DraftTaskCardProps) {
   }
 
 
+  let status = 'Listening for context...'
+
+  if (props.understanding) {
+    status = 'Understanding...'
+  } else if (props.task !== null) {
+    status = 'Ready — keep talking to change it'
+  }
+
+
   return (
-    <View
+    <Animated.View
+      entering={FadeInDown.duration(400)}
+      layout={LinearTransition.duration(250)}
       style={[
         styles.card,
         {
@@ -46,24 +62,34 @@ export default function DraftTaskCard(props: DraftTaskCardProps) {
         },
       ]}
     >
-      <Text style={[styles.title, { color: colors.text }]}>
+      <Animated.Text
+        key={title}
+        entering={FadeIn.duration(300)}
+        style={[styles.title, { color: colors.text }]}
+      >
         {title}
-      </Text>
+      </Animated.Text>
 
-      {props.understanding && (
-        <Text style={[styles.status, { color: colors.orange }]}>
-          Understanding...
-        </Text>
-      )}
+      <Animated.Text
+        key={status}
+        entering={FadeIn.duration(250)}
+        style={[styles.status, { color: colors.orange }]}
+      >
+        {status}
+      </Animated.Text>
 
       <View style={styles.row}>
         <Text style={[styles.label, { color: colors.textSecondary }]}>
           Slice
         </Text>
 
-        <Text style={[styles.value, { color: colors.text }]}>
+        <Animated.Text
+          key={slice}
+          entering={FadeIn.duration(300)}
+          style={[styles.value, { color: colors.text }]}
+        >
           {slice}
-        </Text>
+        </Animated.Text>
       </View>
 
       <View style={styles.row}>
@@ -71,9 +97,13 @@ export default function DraftTaskCard(props: DraftTaskCardProps) {
           Date
         </Text>
 
-        <Text style={[styles.value, { color: colors.text }]}>
+        <Animated.Text
+          key={date}
+          entering={FadeIn.duration(300)}
+          style={[styles.value, { color: colors.text }]}
+        >
           {date}
-        </Text>
+        </Animated.Text>
       </View>
 
       <View style={styles.row}>
@@ -81,11 +111,15 @@ export default function DraftTaskCard(props: DraftTaskCardProps) {
           Time
         </Text>
 
-        <Text style={[styles.value, { color: colors.text }]}>
+        <Animated.Text
+          key={time}
+          entering={FadeIn.duration(300)}
+          style={[styles.value, { color: colors.text }]}
+        >
           {time}
-        </Text>
+        </Animated.Text>
       </View>
-    </View>
+    </Animated.View>
   )
 }
 

@@ -11,6 +11,7 @@ import {
 } from 'expo-speech-recognition'
 
 import { Colors, Spacing } from '@/constants/theme'
+import Animated, { FadeIn } from 'react-native-reanimated'
 
 
 type LiveSpeechProps = {
@@ -91,15 +92,18 @@ export default function LiveSpeech(props: LiveSpeechProps) {
       >
         <Text style={styles.buttonText}>
           {props.listening
-            ? 'Stop'
-            : 'Start talking'}
+            ? '■  Stop'
+            : '●  Start talking'}
         </Text>
       </Pressable>
 
       {props.listening && (
-        <Text style={[styles.status, { color: colors.orange }]}>
-          Listening...
-        </Text>
+        <Animated.Text
+            entering={FadeIn.duration(250)}
+            style={[styles.status, { color: colors.orange }]}
+        >
+            Listening live...
+        </Animated.Text>
       )}
 
       {props.transcript !== '' && (
