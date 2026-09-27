@@ -11,7 +11,7 @@ import DraftTaskCard from '@/components/draft-task-card'
 import { Colors, Spacing } from '@/constants/theme'
 import {
   TaskDraft,
-  understandTasksText,
+  understandTaskText,
 } from '@/lib/api'
 
 
@@ -20,22 +20,21 @@ export default function AddScreen() {
 
   const [listening, setListening] = useState(false)
   const [liveTranscript, setLiveTranscript] = useState('')
-  const [draftTasks, setDraftTasks] = useState<TaskDraft[]>([])
+  const [draftTask, setDraftTask] = useState<TaskDraft | null>(null)
   const [understanding, setUnderstanding] = useState(false)
 
   const latestTranscript = useRef('')
-  const lastSuccessfulTranscript = useRef('')
+  const lastSentTranscript = useRef('')
   const requestInProgress = useRef(false)
   const listeningRef = useRef(false)
-  const finalRequestWaiting = useRef(false)
 
 
   useEffect(function() {
     latestTranscript.current = liveTranscript
 
     if (liveTranscript.trim() === '') {
-      setDraftTasks([])
-      lastSuccessfulTranscript.current = ''
+      setDraftTask(null)
+      lastSentTranscript.current = ''
     }
   }, [liveTranscript])
 
@@ -52,43 +51,36 @@ export default function AddScreen() {
       return
     }
 
-    if (text === lastSuccessfulTranscript.current) {
+    if (text === lastSentTranscript.current) {
       return
     }
 
     if (requestInProgress.current) {
-      if (listeningRef.current === false) {
-        finalRequestWaiting.current = true
-      }
-
       return
     }
 
+    lastSentTranscript.current = text
     requestInProgress.current = true
+
     setUnderstanding(true)
 
     try {
-      const tasks = await understandTasksText(text)
+      const task = await understandTaskText(text)
 
-      console.log('MULTI TASKS:', tasks)
-
-      setDraftTasks(tasks)
-
-      lastSuccessfulTranscript.current = text
+      setDraftTask(task)
     } catch (error) {
       console.log('Understanding error:', error)
     } finally {
       requestInProgress.current = false
       setUnderstanding(false)
 
-      if (finalRequestWaiting.current) {
-        finalRequestWaiting.current = false
+      const newestText = latestTranscript.current.trim()
 
-        const newestText = latestTranscript.current.trim()
-
-        if (newestText !== lastSuccessfulTranscript.current) {
-          updateDraftFromSpeech()
-        }
+      if (
+        listeningRef.current === false &&
+        newestText !== lastSentTranscript.current
+      ) {
+        updateDraftFromSpeech()
       }
     }
   }
@@ -133,26 +125,11 @@ export default function AddScreen() {
           onTranscriptChange={setLiveTranscript}
         />
 
-        {liveTranscript !== '' &&
-          draftTasks.length === 0 &&
-          (listening || understanding) && (
-            <DraftTaskCard
-              visible={true}
-              understanding={understanding}
-              task={null}
-            />
-          )}
-
-        {draftTasks.map(function(task, index) {
-          return (
-            <DraftTaskCard
-              key={'draft-' + index}
-              visible={true}
-              understanding={understanding}
-              task={task}
-            />
-          )
-        })}
+        <DraftTaskCard
+          visible={liveTranscript !== ''}
+          understanding={understanding}
+          task={draftTask}
+        />
       </SafeAreaView>
     </View>
   )
