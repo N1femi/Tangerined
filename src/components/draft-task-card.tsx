@@ -1,4 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native'
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native'
+
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -12,7 +18,10 @@ import { TaskDraft } from '@/lib/api'
 type DraftTaskCardProps = {
   visible: boolean
   understanding: boolean
+  listening: boolean
   task: TaskDraft | null
+  onConfirm(): void
+  onEdit(): void
 }
 
 
@@ -22,7 +31,6 @@ export default function DraftTaskCard(props: DraftTaskCardProps) {
   if (!props.visible) {
     return null
   }
-
 
   let title = 'Understanding task...'
   let slice = 'Finding slice...'
@@ -41,15 +49,20 @@ export default function DraftTaskCard(props: DraftTaskCardProps) {
     }
   }
 
-
   let status = 'Listening for context...'
 
   if (props.understanding) {
     status = 'Understanding...'
-  } else if (props.task !== null) {
+  } else if (props.listening) {
     status = 'Ready — keep talking to change it'
+  } else if (props.task !== null) {
+    status = 'Ready to add'
   }
 
+  const showActions =
+    props.task !== null &&
+    props.listening === false &&
+    props.understanding === false
 
   return (
     <Animated.View
@@ -119,6 +132,31 @@ export default function DraftTaskCard(props: DraftTaskCardProps) {
           {time}
         </Animated.Text>
       </View>
+
+      {showActions && (
+        <Animated.View
+          entering={FadeIn.duration(250)}
+          style={styles.actions}
+        >
+          <Pressable
+            onPress={props.onEdit}
+            style={styles.editButton}
+          >
+            <Text style={[styles.editText, { color: colors.text }]}>
+              Edit
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={props.onConfirm}
+            style={styles.confirmButton}
+          >
+            <Text style={styles.confirmText}>
+              ✓
+            </Text>
+          </Pressable>
+        </Animated.View>
+      )}
     </Animated.View>
   )
 }
@@ -155,5 +193,41 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 15,
     fontWeight: '500',
+  },
+
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: Spacing.three,
+  },
+
+  editButton: {
+    backgroundColor: '#E9DED2',
+    paddingHorizontal: Spacing.three,
+    height: 42,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.two,
+  },
+
+  editText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  confirmButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#63A66F',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  confirmText: {
+    color: 'white',
+    fontSize: 21,
+    fontWeight: '700',
   },
 })

@@ -4,22 +4,34 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import TaskCard from '@/components/task-card'
 import UpcomingTimeline from '@/components/upcoming-timeline'
 import { Colors, Spacing } from '@/constants/theme'
+import { useTasks } from '@/context/task-context'
 import { slices } from '@/data/slices'
-import { Task, tasks } from '@/data/tasks'
+import { Task } from '@/data/tasks'
 import { getTaskDateTime } from '@/lib/date'
+
 
 export default function HomeScreen() {
   const colors = Colors.light
+
+  const { tasks } = useTasks()
+
 
   function getTodayDate() {
     const today = new Date()
 
     const year = today.getFullYear()
-    const month = String(today.getMonth() + 1).padStart(2, '0')
-    const day = String(today.getDate()).padStart(2, '0')
+
+    const month = String(
+      today.getMonth() + 1
+    ).padStart(2, '0')
+
+    const day = String(
+      today.getDate()
+    ).padStart(2, '0')
 
     return year + '-' + month + '-' + day
   }
+
 
   function getSlice(sliceId: string) {
     for (let i = 0; i < slices.length; i++) {
@@ -31,19 +43,18 @@ export default function HomeScreen() {
     return null
   }
 
+
   const todayDate = getTodayDate()
   const now = new Date()
 
   let upcomingTasks: Task[] = []
   let todayTasks: Task[] = []
 
+
   for (let i = 0; i < tasks.length; i++) {
     const task = tasks[i]
 
-    if (
-      task.completed === false &&
-      task.time !== null
-    ) {
+    if (task.completed === false) {
       const reminderDate = getTaskDateTime(
         task.date,
         task.time
@@ -63,6 +74,7 @@ export default function HomeScreen() {
     }
   }
 
+
   upcomingTasks.sort(function(firstTask, secondTask) {
     const firstDate = getTaskDateTime(
       firstTask.date,
@@ -77,15 +89,40 @@ export default function HomeScreen() {
     return firstDate.getTime() - secondDate.getTime()
   })
 
+
+  upcomingTasks = upcomingTasks.slice(0, 3)
+
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.background,
+        },
+      ]}
+    >
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
-          <Text style={[styles.greeting, { color: colors.textSecondary }]}>
+          <Text
+            style={[
+              styles.greeting,
+              {
+                color: colors.textSecondary,
+              },
+            ]}
+          >
             Good afternoon
           </Text>
 
-          <Text style={[styles.title, { color: colors.text }]}>
+          <Text
+            style={[
+              styles.title,
+              {
+                color: colors.text,
+              },
+            ]}
+          >
             Tangerined
           </Text>
         </View>
@@ -94,42 +131,90 @@ export default function HomeScreen() {
           style={[
             styles.slice,
             styles.upcomingSlice,
-            { backgroundColor: colors.backgroundElement },
+            {
+              backgroundColor: colors.backgroundElement,
+            },
           ]}
         >
-          <Text style={[styles.sliceLabel, { color: colors.orange }]}>
+          <Text
+            style={[
+              styles.sliceLabel,
+              {
+                color: colors.orange,
+              },
+            ]}
+          >
             UPCOMING
           </Text>
 
-          <Text style={[styles.sliceTitle, { color: colors.text }]}>
+          <Text
+            style={[
+              styles.sliceTitle,
+              {
+                color: colors.text,
+              },
+            ]}
+          >
             Your day at a glance
           </Text>
 
           {upcomingTasks.length === 0 ? (
-            <Text style={[styles.sliceText, { color: colors.textSecondary }]}>
+            <Text
+              style={[
+                styles.sliceText,
+                {
+                  color: colors.textSecondary,
+                },
+              ]}
+            >
               Nothing here yet.
             </Text>
           ) : (
-            <UpcomingTimeline tasks={upcomingTasks} />
+            <UpcomingTimeline
+              tasks={upcomingTasks}
+            />
           )}
         </View>
 
         <View
           style={[
             styles.slice,
-            { backgroundColor: colors.backgroundElement },
+            {
+              backgroundColor: colors.backgroundElement,
+            },
           ]}
         >
-          <Text style={[styles.sliceLabel, { color: colors.orange }]}>
+          <Text
+            style={[
+              styles.sliceLabel,
+              {
+                color: colors.orange,
+              },
+            ]}
+          >
             TODAY&apos;S TASKS
           </Text>
 
-          <Text style={[styles.sliceTitle, { color: colors.text }]}>
+          <Text
+            style={[
+              styles.sliceTitle,
+              {
+                color: colors.text,
+              },
+            ]}
+          >
             Get them done
           </Text>
 
           {todayTasks.length === 0 ? (
-            <Text style={[styles.sliceText, { color: colors.textSecondary }]}>
+            <Text
+              style={[
+                styles.sliceText,
+                {
+                  color: colors.textSecondary,
+                },
+              ]}
+            >
               Nothing here yet.
             </Text>
           ) : null}
@@ -142,8 +227,16 @@ export default function HomeScreen() {
                 key={task.id}
                 title={task.title}
                 due="Today"
-                sliceName={taskSlice ? taskSlice.name : undefined}
-                sliceColor={taskSlice ? taskSlice.color : undefined}
+                sliceName={
+                  taskSlice
+                    ? taskSlice.name
+                    : undefined
+                }
+                sliceColor={
+                  taskSlice
+                    ? taskSlice.color
+                    : undefined
+                }
               />
             )
           })}
@@ -152,6 +245,7 @@ export default function HomeScreen() {
     </View>
   )
 }
+
 
 const styles = StyleSheet.create({
   container: {

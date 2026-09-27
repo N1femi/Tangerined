@@ -17,11 +17,14 @@ import { Colors, Spacing } from '@/constants/theme'
 import { slices } from '@/data/slices'
 import { Task } from '@/data/tasks'
 
+
 type TaskFormSheetProps = {
   visible: boolean
+  initialTask?: Task | null
   onClose(): void
   onCreate(task: Task): void
 }
+
 
 function createDefaultDate() {
   const date = new Date()
@@ -32,6 +35,7 @@ function createDefaultDate() {
   return date
 }
 
+
 function datesAreSame(firstDate: Date, secondDate: Date) {
   return (
     firstDate.getFullYear() === secondDate.getFullYear() &&
@@ -40,6 +44,7 @@ function datesAreSame(firstDate: Date, secondDate: Date) {
   )
 }
 
+
 export default function TaskFormSheet(props: TaskFormSheetProps) {
   const colors = Colors.light
 
@@ -47,9 +52,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-
   const [sliceId, setSliceId] = useState('school')
-
   const [date, setDate] = useState(defaultDate)
 
   const [calendarMonth, setCalendarMonth] = useState(
@@ -63,7 +66,6 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
   const [hour, setHour] = useState(1)
   const [minute, setMinute] = useState(0)
   const [period, setPeriod] = useState<'AM' | 'PM'>('PM')
-
   const [hasTime, setHasTime] = useState(true)
 
   const [popup, setPopup] = useState<'calendar' | 'time' | null>(null)
@@ -76,8 +78,84 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
     new Animated.Value(700)
   ).current
 
+
+  function resetForm() {
+    const newDate = createDefaultDate()
+
+    setTitle('')
+    setDescription('')
+    setSliceId('school')
+    setDate(newDate)
+
+    setCalendarMonth(
+      new Date(
+        newDate.getFullYear(),
+        newDate.getMonth(),
+        1
+      )
+    )
+
+    setHour(1)
+    setMinute(0)
+    setPeriod('PM')
+    setHasTime(true)
+    setPopup(null)
+  }
+
+
+  function loadTask(task: Task) {
+    setTitle(task.title)
+    setDescription(task.description ?? '')
+    setSliceId(task.sliceId)
+
+    const dateParts = task.date.split('-')
+
+    const taskDate = new Date(
+      Number(dateParts[0]),
+      Number(dateParts[1]) - 1,
+      Number(dateParts[2])
+    )
+
+    setDate(taskDate)
+
+    setCalendarMonth(
+      new Date(
+        taskDate.getFullYear(),
+        taskDate.getMonth(),
+        1
+      )
+    )
+
+    if (task.time === null) {
+      setHour(1)
+      setMinute(0)
+      setPeriod('PM')
+      setHasTime(false)
+      setPopup(null)
+
+      return
+    }
+
+    const timeParts = task.time.split(' ')
+    const clockParts = timeParts[0].split(':')
+
+    setHour(Number(clockParts[0]))
+    setMinute(Number(clockParts[1]))
+    setPeriod(timeParts[1] as 'AM' | 'PM')
+
+    setHasTime(true)
+    setPopup(null)
+  }
+
+
   useEffect(function() {
     if (props.visible === true) {
+      if (props.initialTask) {
+        loadTask(props.initialTask)
+      } else {
+        resetForm()
+      }
+
       backdropOpacity.setValue(0)
       sheetTranslateY.setValue(700)
 
@@ -97,6 +175,29 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
       ]).start()
     }
   }, [props.visible])
+
+
+  function closeSheet() {
+    setPopup(null)
+
+    Animated.parallel([
+      Animated.timing(backdropOpacity, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+
+      Animated.timing(sheetTranslateY, {
+        toValue: 700,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(function() {
+      resetForm()
+      props.onClose()
+    })
+  }
+
 
   const panResponder = useRef(
     PanResponder.create({
@@ -125,52 +226,6 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
     })
   ).current
 
-  function resetForm() {
-    const newDate = createDefaultDate()
-
-    setTitle('')
-    setDescription('')
-
-    setSliceId('school')
-
-    setDate(newDate)
-
-    setCalendarMonth(
-      new Date(
-        newDate.getFullYear(),
-        newDate.getMonth(),
-        1
-      )
-    )
-
-    setHour(1)
-    setMinute(0)
-    setPeriod('PM')
-
-    setHasTime(true)
-    setPopup(null)
-  }
-
-  function closeSheet() {
-    setPopup(null)
-
-    Animated.parallel([
-      Animated.timing(backdropOpacity, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-
-      Animated.timing(sheetTranslateY, {
-        toValue: 700,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start(function() {
-      resetForm()
-      props.onClose()
-    })
-  }
 
   function formatDateForDisplay(selectedDate: Date) {
     return selectedDate.toLocaleDateString('en-US', {
@@ -179,6 +234,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
       day: 'numeric',
     })
   }
+
 
   function formatDateForStorage(selectedDate: Date) {
     const year = selectedDate.getFullYear()
@@ -194,11 +250,13 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
     return year + '-' + month + '-' + day
   }
 
+
   function formatTime() {
     const minuteText = String(minute).padStart(2, '0')
 
     return hour + ':' + minuteText + ' ' + period
   }
+
 
   function createTask() {
     let finalTitle = title.trim()
@@ -228,6 +286,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
     closeSheet()
   }
 
+
   function previousMonth() {
     setCalendarMonth(
       new Date(
@@ -238,6 +297,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
     )
   }
 
+
   function nextMonth() {
     setCalendarMonth(
       new Date(
@@ -247,6 +307,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
       )
     )
   }
+
 
   function getCalendarDays() {
     const year = calendarMonth.getFullYear()
@@ -275,6 +336,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
     return days
   }
 
+
   function chooseDate(selectedDate: Date | null) {
     if (selectedDate === null) {
       return
@@ -284,6 +346,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
     setPopup(null)
   }
 
+
   function increaseHour() {
     if (hour === 12) {
       setHour(1)
@@ -291,6 +354,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
       setHour(hour + 1)
     }
   }
+
 
   function decreaseHour() {
     if (hour === 1) {
@@ -300,6 +364,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
     }
   }
 
+
   function increaseMinute() {
     if (minute === 55) {
       setMinute(0)
@@ -308,6 +373,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
     }
   }
 
+
   function decreaseMinute() {
     if (minute === 0) {
       setMinute(55)
@@ -315,6 +381,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
       setMinute(minute - 5)
     }
   }
+
 
   const calendarDays = getCalendarDays()
 
@@ -325,6 +392,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
       year: 'numeric',
     }
   )
+
 
   return (
     <Modal
@@ -357,7 +425,6 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
               styles.sheet,
               {
                 backgroundColor: colors.backgroundElement,
-
                 transform: [
                   {
                     translateY: sheetTranslateY,
@@ -551,7 +618,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
                     },
                   ]}
                 >
-                  {hasTime === true
+                  {hasTime
                     ? formatTime()
                     : 'No time'}
                 </Text>
@@ -571,7 +638,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
                     },
                   ]}
                 >
-                  {hasTime === true
+                  {hasTime
                     ? 'Remove reminder time'
                     : 'Add reminder time'}
                 </Text>
@@ -723,7 +790,6 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
                         onPress={selectDate}
                         style={[
                           styles.dayButton,
-
                           selected
                             ? {
                                 backgroundColor: colors.orange,
@@ -982,6 +1048,7 @@ export default function TaskFormSheet(props: TaskFormSheetProps) {
   )
 }
 
+
 const styles = StyleSheet.create({
   modal: {
     flex: 1,
@@ -997,7 +1064,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-
     backgroundColor: 'rgba(52, 44, 38, 0.35)',
   },
 
@@ -1008,26 +1074,21 @@ const styles = StyleSheet.create({
 
   sheet: {
     maxHeight: '88%',
-
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-
     overflow: 'hidden',
   },
 
   handleArea: {
     paddingTop: 22,
     paddingBottom: 18,
-
     alignItems: 'center',
   },
 
   handle: {
     width: 50,
     height: 5,
-
     borderRadius: 3,
-
     opacity: 0.4,
   },
 
@@ -1039,30 +1100,23 @@ const styles = StyleSheet.create({
   titleInput: {
     fontSize: 30,
     fontWeight: '700',
-
     paddingVertical: 0,
     marginBottom: Spacing.two,
   },
 
   descriptionInput: {
     minHeight: 70,
-
     fontSize: 16,
     lineHeight: 22,
-
     paddingVertical: 0,
-
     marginBottom: Spacing.four,
-
     textAlignVertical: 'top',
   },
 
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
-
     letterSpacing: 1,
-
     marginTop: Spacing.three,
     marginBottom: Spacing.two,
   },
@@ -1075,13 +1129,10 @@ const styles = StyleSheet.create({
   sliceOption: {
     flexDirection: 'row',
     alignItems: 'center',
-
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-
     borderRadius: 20,
     borderWidth: 1,
-
     marginRight: Spacing.two,
     marginBottom: Spacing.two,
   },
@@ -1089,9 +1140,7 @@ const styles = StyleSheet.create({
   sliceCircle: {
     width: 8,
     height: 8,
-
     borderRadius: 4,
-
     marginRight: Spacing.two,
   },
 
@@ -1102,15 +1151,11 @@ const styles = StyleSheet.create({
 
   detailRow: {
     minHeight: 56,
-
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-
     paddingHorizontal: Spacing.three,
-
     borderRadius: 16,
-
     marginBottom: Spacing.two,
   },
 
@@ -1125,7 +1170,6 @@ const styles = StyleSheet.create({
 
   noTimeButton: {
     alignSelf: 'flex-end',
-
     marginTop: Spacing.one,
   },
 
@@ -1136,31 +1180,22 @@ const styles = StyleSheet.create({
 
   buttons: {
     flexDirection: 'row',
-
     marginTop: Spacing.five,
   },
 
   cancelButton: {
     flex: 1,
-
     backgroundColor: '#E9DED2',
-
     paddingVertical: Spacing.three,
-
     borderRadius: 18,
-
     alignItems: 'center',
-
     marginRight: Spacing.two,
   },
 
   addButton: {
     flex: 1,
-
     paddingVertical: Spacing.three,
-
     borderRadius: 18,
-
     alignItems: 'center',
   },
 
@@ -1171,42 +1206,34 @@ const styles = StyleSheet.create({
 
   addText: {
     color: 'white',
-
     fontSize: 16,
     fontWeight: '600',
   },
 
   popupLayer: {
     position: 'absolute',
-
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-
     zIndex: 20,
-
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   popupBackdrop: {
     position: 'absolute',
-
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-
     backgroundColor: 'rgba(52, 44, 38, 0.25)',
   },
 
   popupCard: {
     width: '88%',
     maxWidth: 380,
-
     borderRadius: 26,
-
     padding: Spacing.four,
   },
 
@@ -1214,14 +1241,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-
     marginBottom: Spacing.three,
   },
 
   arrowButton: {
     width: 40,
     height: 40,
-
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1237,15 +1262,12 @@ const styles = StyleSheet.create({
 
   weekRow: {
     flexDirection: 'row',
-
     marginBottom: Spacing.two,
   },
 
   weekDay: {
     width: '14.2857%',
-
     textAlign: 'center',
-
     fontSize: 12,
     fontWeight: '600',
   },
@@ -1258,7 +1280,6 @@ const styles = StyleSheet.create({
   dayCell: {
     width: '14.2857%',
     height: 42,
-
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1266,9 +1287,7 @@ const styles = StyleSheet.create({
   dayButton: {
     width: 36,
     height: 36,
-
     borderRadius: 18,
-
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1280,30 +1299,25 @@ const styles = StyleSheet.create({
 
   timeTitle: {
     textAlign: 'center',
-
     fontSize: 20,
     fontWeight: '700',
-
     marginBottom: Spacing.four,
   },
 
   timeControls: {
     flexDirection: 'row',
-
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   numberPicker: {
     minWidth: 64,
-
     alignItems: 'center',
   },
 
   numberButton: {
     width: 44,
     height: 38,
-
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1316,14 +1330,12 @@ const styles = StyleSheet.create({
   numberValue: {
     fontSize: 30,
     fontWeight: '700',
-
     marginVertical: Spacing.one,
   },
 
   colon: {
     fontSize: 30,
     fontWeight: '700',
-
     marginHorizontal: Spacing.one,
   },
 
@@ -1333,14 +1345,10 @@ const styles = StyleSheet.create({
 
   periodButton: {
     minWidth: 54,
-
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-
     borderRadius: 12,
-
     alignItems: 'center',
-
     marginVertical: Spacing.one,
   },
 
@@ -1351,17 +1359,13 @@ const styles = StyleSheet.create({
 
   popupDoneButton: {
     marginTop: Spacing.four,
-
     paddingVertical: Spacing.three,
-
     borderRadius: 16,
-
     alignItems: 'center',
   },
 
   popupDoneText: {
     color: 'white',
-
     fontSize: 15,
     fontWeight: '600',
   },

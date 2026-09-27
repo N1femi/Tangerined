@@ -6,10 +6,14 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import LiveSpeech from '@/components/live-speech'
 import DraftTaskCard from '@/components/draft-task-card'
+import LiveSpeech from '@/components/live-speech'
+import TaskFormSheet from '@/components/task-form-sheet'
 import { Colors, Spacing } from '@/constants/theme'
+import { useTasks } from '@/context/task-context'
+import { Task } from '@/data/tasks'
 import {
+  createTask,
   TaskDraft,
   understandTaskText,
 } from '@/lib/api'
@@ -18,10 +22,13 @@ import {
 export default function AddScreen() {
   const colors = Colors.light
 
+  const { addTask } = useTasks()
+
   const [listening, setListening] = useState(false)
   const [liveTranscript, setLiveTranscript] = useState('')
   const [draftTask, setDraftTask] = useState<TaskDraft | null>(null)
   const [understanding, setUnderstanding] = useState(false)
+  const [showEditForm, setShowEditForm] = useState(false)
 
   const latestTranscript = useRef('')
   const lastSentTranscript = useRef('')
@@ -107,6 +114,76 @@ export default function AddScreen() {
   }, [listening])
 
 
+  function clearDraft() {
+    setLiveTranscript('')
+    setDraftTask(null)
+    latestTranscript.current = ''
+    lastSentTranscript.current = ''
+  }
+
+
+  async function confirmDraft() {
+    if (draftTask === null) {
+      return
+    }
+
+    try {
+      const savedTask = await createTask(draftTask)
+
+      addTask(savedTask)
+
+      clearDraft()
+    } catch (error) {
+      console.log('Confirm error:', error)
+    }
+  }
+
+
+  function editDraft() {
+    if (draftTask === null) {
+      return
+    }
+
+    setShowEditForm(true)
+  }
+
+
+  async function saveEditedTask(task: Task) {
+    const editedDraft: TaskDraft = {
+      title: task.title,
+      description: task.description ?? '',
+      sliceId: task.sliceId,
+      date: task.date,
+      time: task.time ?? '',
+    }
+
+    try {
+      const savedTask = await createTask(editedDraft)
+
+      addTask(savedTask)
+
+      clearDraft()
+    } catch (error) {
+      console.log('Edit save error:', error)
+    }
+  }
+
+
+  let editingTask: Task | null = null
+
+  if (draftTask !== null) {
+    editingTask = {
+      id: 'draft',
+      title: draftTask.title,
+      description: draftTask.description,
+      sliceId: draftTask.sliceId,
+      date: draftTask.date,
+      time: draftTask.time === '' ? null : draftTask.time,
+      completed: false,
+    }
+  }
+
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SafeAreaView style={styles.safeArea}>
@@ -128,7 +205,19 @@ export default function AddScreen() {
         <DraftTaskCard
           visible={liveTranscript !== ''}
           understanding={understanding}
+          listening={listening}
           task={draftTask}
+          onConfirm={confirmDraft}
+          onEdit={editDraft}
+        />
+
+        <TaskFormSheet
+          visible={showEditForm}
+          initialTask={editingTask}
+          onClose={function() {
+            setShowEditForm(false)
+          }}
+          onCreate={saveEditedTask}
         />
       </SafeAreaView>
     </View>
