@@ -1,9 +1,18 @@
-from fastapi import FastAPI
+import uuid
 
-from db import test_connection
+from pydantic import BaseModel
+from fastapi import FastAPI
+from db import add_task, get_tasks, test_connection
+
+class TaskRequest(BaseModel):
+    title: str
+    description: str | None = None
+    sliceId: str
+    date: str
+    time: str | None = None
+    
 
 app = FastAPI()
-
 
 @app.get("/")
 def home():
@@ -11,6 +20,9 @@ def home():
         "message": "Tangerined backend is running"
     }
 
+@app.get("/tasks")
+def read_tasks():
+    return get_tasks()
 
 @app.get("/health")
 def health():
@@ -25,4 +37,27 @@ def snowflake_health():
     return {
         "connected": True,
         "version": version,
+    }
+    
+@app.post("/tasks")
+def create_task(task: TaskRequest):
+    task_id = str(uuid.uuid4())
+
+    add_task(
+        task_id,
+        task.title,
+        task.description,
+        task.sliceId,
+        task.date,
+        task.time,
+    )
+
+    return {
+        "id": task_id,
+        "title": task.title,
+        "description": task.description,
+        "sliceId": task.sliceId,
+        "date": task.date,
+        "time": task.time,
+        "completed": False,
     }
