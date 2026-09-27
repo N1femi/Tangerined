@@ -13,6 +13,9 @@ import { Colors, Spacing } from '@/constants/theme'
 import { useTasks } from '@/context/task-context'
 import { createTaskFromText } from '@/lib/api'
 
+import LiveSpeech from '@/components/live-speech'
+import DraftTaskCard from '@/components/draft-task-card'
+
 
 export default function AddScreen() {
   const colors = Colors.light
@@ -22,6 +25,8 @@ export default function AddScreen() {
   const [thought, setThought] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [listening, setListening] = useState(false)
+  const [liveTranscript, setLiveTranscript] = useState('')
 
   async function submitThought() {
     if (thought.trim() === '') {
@@ -61,6 +66,17 @@ export default function AddScreen() {
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           Tell Tangerined what you need to remember.
         </Text>
+
+        <LiveSpeech
+          listening={listening}
+          transcript={liveTranscript}
+          onListeningChange={setListening}
+          onTranscriptChange={setLiveTranscript}
+        />
+
+        <DraftTaskCard
+          visible={liveTranscript !== ''}
+        />
 
         <TextInput
           value={thought}
