@@ -2,8 +2,10 @@ import uuid
 
 from pydantic import BaseModel
 from fastapi import FastAPI
+
 from db import add_task, get_tasks, test_connection
-from ai import understand_task
+from ai import understand_task, understand_tasks
+
 
 class TaskRequest(BaseModel):
     title: str
@@ -11,10 +13,11 @@ class TaskRequest(BaseModel):
     sliceId: str
     date: str
     time: str | None = None
-    
+
+
 class ThoughtRequest(BaseModel):
     text: str
-    
+
 
 app = FastAPI()
 
@@ -23,22 +26,33 @@ app = FastAPI()
 def understand(thought: ThoughtRequest):
     return understand_task(thought.text)
 
+
+@app.post("/understand/tasks")
+def understand_many(thought: ThoughtRequest):
+    return {
+        "tasks": understand_tasks(thought.text)
+    }
+
+
 @app.get("/")
 def home():
     return {
         "message": "Tangerined backend is running"
     }
 
+
 @app.get("/tasks")
 def read_tasks():
     return get_tasks()
+
 
 @app.get("/health")
 def health():
     return {
         "status": "ok"
     }
-    
+
+
 @app.get("/snowflake")
 def snowflake_health():
     version = test_connection()
@@ -47,7 +61,8 @@ def snowflake_health():
         "connected": True,
         "version": version,
     }
-    
+
+
 @app.post("/tasks")
 def create_task(task: TaskRequest):
     task_id = str(uuid.uuid4())
@@ -70,8 +85,8 @@ def create_task(task: TaskRequest):
         "time": task.time,
         "completed": False,
     }
-    
-    
+
+
 @app.post("/tasks/from-text")
 def create_task_from_text(thought: ThoughtRequest):
     parsed_task = understand_task(thought.text)

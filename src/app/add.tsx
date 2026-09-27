@@ -11,7 +11,7 @@ import DraftTaskCard from '@/components/draft-task-card'
 import { Colors, Spacing } from '@/constants/theme'
 import {
   TaskDraft,
-  understandTaskText,
+  understandTasksText,
 } from '@/lib/api'
 
 
@@ -20,7 +20,7 @@ export default function AddScreen() {
 
   const [listening, setListening] = useState(false)
   const [liveTranscript, setLiveTranscript] = useState('')
-  const [draftTask, setDraftTask] = useState<TaskDraft | null>(null)
+  const [draftTasks, setDraftTasks] = useState<TaskDraft[]>([])
   const [understanding, setUnderstanding] = useState(false)
 
   const latestTranscript = useRef('')
@@ -33,7 +33,7 @@ export default function AddScreen() {
     latestTranscript.current = liveTranscript
 
     if (liveTranscript.trim() === '') {
-      setDraftTask(null)
+      setDraftTasks([])
       lastSentTranscript.current = ''
     }
   }, [liveTranscript])
@@ -65,9 +65,9 @@ export default function AddScreen() {
     setUnderstanding(true)
 
     try {
-      const task = await understandTaskText(text)
+      const tasks = await understandTasksText(text)
 
-      setDraftTask(task)
+      setDraftTasks(tasks)
     } catch (error) {
       console.log('Understanding error:', error)
     } finally {
@@ -125,11 +125,24 @@ export default function AddScreen() {
           onTranscriptChange={setLiveTranscript}
         />
 
-        <DraftTaskCard
-          visible={liveTranscript !== ''}
-          understanding={understanding}
-          task={draftTask}
-        />
+        {liveTranscript !== '' && draftTasks.length === 0 && (
+          <DraftTaskCard
+            visible={true}
+            understanding={understanding}
+            task={null}
+          />
+        )}
+
+        {draftTasks.map(function(task, index) {
+          return (
+            <DraftTaskCard
+              key={'draft-' + index}
+              visible={true}
+              understanding={understanding}
+              task={task}
+            />
+          )
+        })}
       </SafeAreaView>
     </View>
   )
