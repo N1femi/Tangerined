@@ -3,6 +3,7 @@ import uuid
 from pydantic import BaseModel
 from fastapi import FastAPI
 from db import add_task, get_tasks, test_connection
+from ai import understand_task
 
 class TaskRequest(BaseModel):
     title: str
@@ -11,8 +12,16 @@ class TaskRequest(BaseModel):
     date: str
     time: str | None = None
     
+class ThoughtRequest(BaseModel):
+    text: str
+    
 
 app = FastAPI()
+
+
+@app.post("/understand")
+def understand(thought: ThoughtRequest):
+    return understand_task(thought.text)
 
 @app.get("/")
 def home():
