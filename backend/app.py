@@ -70,3 +70,34 @@ def create_task(task: TaskRequest):
         "time": task.time,
         "completed": False,
     }
+    
+    
+@app.post("/tasks/from-text")
+def create_task_from_text(thought: ThoughtRequest):
+    parsed_task = understand_task(thought.text)
+
+    task_id = str(uuid.uuid4())
+
+    task_time = parsed_task["time"]
+
+    if task_time == "":
+        task_time = None
+
+    add_task(
+        task_id,
+        parsed_task["title"],
+        parsed_task["description"],
+        parsed_task["sliceId"],
+        parsed_task["date"],
+        task_time,
+    )
+
+    return {
+        "id": task_id,
+        "title": parsed_task["title"],
+        "description": parsed_task["description"],
+        "sliceId": parsed_task["sliceId"],
+        "date": parsed_task["date"],
+        "time": task_time,
+        "completed": False,
+    }
