@@ -2,9 +2,11 @@ import { StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import TaskCard from '@/components/task-card'
+import UpcomingTimeline from '@/components/upcoming-timeline'
 import { Colors, Spacing } from '@/constants/theme'
 import { slices } from '@/data/slices'
-import { tasks } from '@/data/tasks'
+import { Task, tasks } from '@/data/tasks'
+import { getTaskDateTime } from '@/lib/date'
 
 export default function HomeScreen() {
   const colors = Colors.light
@@ -19,22 +21,6 @@ export default function HomeScreen() {
     return year + '-' + month + '-' + day
   }
 
-  function formatDate(dateString: string) {
-    const parts = dateString.split('-')
-
-    const year = Number(parts[0])
-    const month = Number(parts[1]) - 1
-    const day = Number(parts[2])
-
-    const date = new Date(year, month, day)
-
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    })
-  }
-
   function getSlice(sliceId: string) {
     for (let i = 0; i < slices.length; i++) {
       if (slices[i].id === sliceId) {
@@ -46,9 +32,10 @@ export default function HomeScreen() {
   }
 
   const todayDate = getTodayDate()
+  const now = new Date()
 
-  let upcomingTasks = []
-  let todayTasks = []
+  let upcomingTasks: Task[] = []
+  let todayTasks: Task[] = []
 
   for (let i = 0; i < tasks.length; i++) {
     const task = tasks[i]
@@ -57,7 +44,14 @@ export default function HomeScreen() {
       task.completed === false &&
       task.time !== null
     ) {
-      upcomingTasks.push(task)
+      const reminderDate = getTaskDateTime(
+        task.date,
+        task.time
+      )
+
+      if (reminderDate.getTime() >= now.getTime()) {
+        upcomingTasks.push(task)
+      }
     }
 
     if (
@@ -68,6 +62,20 @@ export default function HomeScreen() {
       todayTasks.push(task)
     }
   }
+
+  upcomingTasks.sort(function(firstTask, secondTask) {
+    const firstDate = getTaskDateTime(
+      firstTask.date,
+      firstTask.time
+    )
+
+    const secondDate = getTaskDateTime(
+      secondTask.date,
+      secondTask.time
+    )
+
+    return firstDate.getTime() - secondDate.getTime()
+  })
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -101,21 +109,9 @@ export default function HomeScreen() {
             <Text style={[styles.sliceText, { color: colors.textSecondary }]}>
               Nothing here yet.
             </Text>
-          ) : null}
-
-          {upcomingTasks.map(function(task) {
-            const taskSlice = getSlice(task.sliceId)
-
-            return (
-              <TaskCard
-                key={task.id}
-                title={task.title}
-                due={formatDate(task.date) + ' • ' + task.time}
-                sliceName={taskSlice ? taskSlice.name : undefined}
-                sliceColor={taskSlice ? taskSlice.color : undefined}
-              />
-            )
-          })}
+          ) : (
+            <UpcomingTimeline tasks={upcomingTasks} />
+          )}
         </View>
 
         <View

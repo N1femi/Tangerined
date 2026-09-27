@@ -1,6 +1,7 @@
 export type Task = {
   id: string
   title: string
+  description?: string
   sliceId: string
   date: string
   time: string | null

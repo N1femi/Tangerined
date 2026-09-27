@@ -1,17 +1,22 @@
 import { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import SliceCard from '@/components/slice-card'
 import SliceView from '@/components/slice-view'
+import TaskFormSheet from '@/components/task-form-sheet'
 import { Colors, Spacing } from '@/constants/theme'
+import { useTasks } from '@/context/task-context'
 import { slices } from '@/data/slices'
-import { tasks } from '@/data/tasks'
+import { Task } from '@/data/tasks'
 
 export default function SlicesScreen() {
   const colors = Colors.light
 
+  const { tasks, addTask } = useTasks()
+
   const [selectedSliceId, setSelectedSliceId] = useState('')
+  const [showTaskForm, setShowTaskForm] = useState(false)
 
   function openSlice(id: string) {
     setSelectedSliceId(id)
@@ -19,6 +24,18 @@ export default function SlicesScreen() {
 
   function closeSlice() {
     setSelectedSliceId('')
+  }
+
+  function openTaskForm() {
+    setShowTaskForm(true)
+  }
+
+  function closeTaskForm() {
+    setShowTaskForm(false)
+  }
+
+  function createTask(task: Task) {
+    addTask(task)
   }
 
   function countRemainingTasks(sliceId: string) {
@@ -44,7 +61,7 @@ export default function SlicesScreen() {
     }
   }
 
-  let selectedTasks = []
+  let selectedTasks: Task[] = []
 
   if (selectedSlice !== null) {
     for (let i = 0; i < tasks.length; i++) {
@@ -69,9 +86,23 @@ export default function SlicesScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SafeAreaView style={styles.safeArea}>
-        <Text style={[styles.title, { color: colors.text }]}>
-          Slices
-        </Text>
+        <View style={styles.titleRow}>
+          <Text style={[styles.title, { color: colors.text }]}>
+            Slices
+          </Text>
+
+          <Pressable
+            onPress={openTaskForm}
+            style={[
+              styles.addButton,
+              { backgroundColor: colors.orange },
+            ]}
+          >
+            <Text style={styles.addButtonText}>
+              +
+            </Text>
+          </Pressable>
+        </View>
 
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           Everything in your life, sliced up into bite size pieces.
@@ -91,6 +122,12 @@ export default function SlicesScreen() {
             )
           })}
         </View>
+
+        <TaskFormSheet
+          visible={showTaskForm}
+          onClose={closeTaskForm}
+          onCreate={createTask}
+        />
       </SafeAreaView>
     </View>
   )
@@ -107,9 +144,30 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.three,
   },
 
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
   title: {
     fontSize: 34,
     fontWeight: '700',
+  },
+
+  addButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  addButtonText: {
+    color: 'white',
+    fontSize: 30,
+    lineHeight: 32,
+    fontWeight: '400',
   },
 
   subtitle: {

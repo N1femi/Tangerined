@@ -3,24 +3,26 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import TaskCard from '@/components/task-card'
 import { Colors, Spacing } from '@/constants/theme'
+import { Task } from '@/data/tasks'
+import { formatDate } from '@/lib/date'
 
 type SliceViewProps = {
   name: string
   emoji: string
   description: string
-  tasks: any[]
+  tasks: Task[]
   onBack: () => void
 }
 
 export default function SliceView(props: SliceViewProps) {
   const colors = Colors.light
 
-  function getTaskDue(task: any) {
+  function getTaskDue(task: Task) {
     if (task.time !== null) {
-      return task.date + ' • ' + task.time
+      return formatDate(task.date) + ' • ' + task.time
     }
 
-    return task.date
+    return formatDate(task.date)
   }
 
   return (
@@ -28,7 +30,7 @@ export default function SliceView(props: SliceViewProps) {
       <SafeAreaView style={styles.safeArea}>
         <Pressable onPress={props.onBack}>
           <Text style={[styles.back, { color: colors.orange }]}>
-                { "< " }Back
+            {'< '}Back
           </Text>
         </Pressable>
 
