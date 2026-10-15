@@ -5,9 +5,9 @@ Many college students have responsibilities that even when making reminders for 
 
 **Think about explaining your week's plans to yourself**: "I have to get more yogurt for a healthy snack, walk my dog on Thursday, mow the grass, fill out that job application i've been procastinating, write this essay for that class assignment, actually let me get granola a swell for that yogurt, and then blah blah blah..."
 
-Our idea was to think of these rambled thoughts as a **Tangerine** in which we can group up similar tasks into **slices** helping to stay more organized. For example, leaving the house to get gas and buying groceries in the supermarket could be grouped into the "Outside Errands" Slice. This was our vision for the project when starting out.
+**Our idea** was to think of these rambled thoughts as a **Tangerine** in which we can group up similar tasks into **slices** helping to stay more organized. For example, leaving the house to get gas and buying groceries in the supermarket could be grouped into the "Outside Errands" Slice. This was our vision for the project when starting out.
 
-A focal point was our user-workflow; for example, I wanted to be able to **WALK** to class while setting tasks, without having to: Sit down, Open my Laptop, and set it up in google calendar. Using this app requires less attention which is intentional, you just ramble.
+**A focal point was our user-workflow**; for example, I wanted to be able to **WALK** to class while setting tasks, without having to: Sit down, Open my Laptop, and set it up in google calendar. Using this app requires less attention which is intentional, you just ramble.
 
 Right now, our current version allows user's to follow this simple flow of actions:
 1. Navigate to *AI* tab in Tangerine App
