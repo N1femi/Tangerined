@@ -15,3 +15,10 @@ Right now, our current version allows user's to follow this simple flow of actio
 5. When tasks are confirmed they are added into "slices" you can view later for a more organized approach with management.
 
 After making Tangerine, my partner and I were genuinely amazed nothing like this has been made, but we were wrong. Turns out Google Gemini had technology similar, but it goes to show that our idea was worth pursuing with even larger teams.
+___
+#### Technologies Used:
+**Frontend:** Expo, React-Native, TypeScript, JavaScript, HTML/CSS
+
+**Backend:** Python, FlaskAPI, SnowflakeAPI
+
+**Version Tracking:** Obviously Github 👽
