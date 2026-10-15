@@ -1,56 +1,17 @@
-# Welcome to your Expo app 👋
+# What is Tangerine 🍊
+### Tangerine is a mobile App that uses Voice-Powered technology supported by AI to handle and organize tasks on the fly! 
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Many college students have responsibilities that even when making reminders for each thing, can get repetitive and long. 
 
-## Get started
+**Think about explaining your week's plans to yourself**: "I have to get more yogurt for a healthy snack, walk my dog on Thursday, mow the grass, fill out that job application i've been procastinating, write this essay for that class assignment, actually let me get granola a swell for that yogurt, and then blah blah blah..."
 
-1. Install dependencies
+Our idea was to think of these rambled thoughts as a **Tangerine** in which we can group up similar tasks into **slices** helping to stay more organized. For example, leaving the house to get gas and buying groceries in the supermarket could be grouped into the "Outside Errands" Slice. This was our vision for the project when starting out.
 
-   ```bash
-   npm install
-   ```
+Right now, our current version allows user's to follow this simple flow of actions:
+1. Navigate to *AI-RambleBox* tab in Tangerine App
+2. Activate listening mode and ramble about your tasks and events
+3. Watch as the AI creates task rectangles displaying: title, date, and time if given.
+4. When you're done talking, AI let's you confirm/edit/delete the tasks it has come up with
+5. When tasks are confirmed they are added into "slices" you can view later for a more organized approach with management.
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+After making Tangerine, my partner and I were genuinely amazed nothing like this has been made, but we were wrong. Turns out Google Gemini had technology similar, but it goes to show that our idea was worth pursuing with even larger teams.
