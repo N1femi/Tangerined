@@ -7,6 +7,8 @@ Many college students have responsibilities that even when making reminders for 
 
 Our idea was to think of these rambled thoughts as a **Tangerine** in which we can group up similar tasks into **slices** helping to stay more organized. For example, leaving the house to get gas and buying groceries in the supermarket could be grouped into the "Outside Errands" Slice. This was our vision for the project when starting out.
 
+A focal point was our user-workflow; for example, I wanted to be able to **WALK** to class without having to: Sit down, Open my Laptop, and setup events in google calendar.
+
 Right now, our current version allows user's to follow this simple flow of actions:
 1. Navigate to *AI-RambleBox* tab in Tangerine App
 2. Activate listening mode and ramble about your tasks and events
